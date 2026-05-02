@@ -11,6 +11,8 @@ The interface is split into pages:
 - Draw: public random-number and choice request tools
 - Docs: Python install, helper API, and entropy path
 
+The overview and docs pages link to `https://pypi.org/project/nuclear-random/`.
+
 ## Runtime
 
 ```bash

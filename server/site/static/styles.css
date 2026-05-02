@@ -160,6 +160,13 @@ h2 {
   height: 58px;
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -177,6 +184,10 @@ h2 {
 .button:hover {
   border-color: rgba(77, 255, 172, 0.78);
   background: rgba(77, 255, 172, 0.22);
+}
+
+.button.subtle {
+  background: rgba(5, 13, 16, 0.78);
 }
 
 .button.full {
@@ -268,6 +279,12 @@ label,
 .lab-strip span {
   color: var(--muted);
   line-height: 1.55;
+}
+
+.lab-strip a {
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .metric-card {
