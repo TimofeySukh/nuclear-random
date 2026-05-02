@@ -5,6 +5,7 @@ The package name is `nuclear-random`.
 Current release line:
 
 ```text
+0.2.1: waits briefly for fresh entropy when the pool is empty
 0.2.x: radioactive decay timing with Von Neumann debiasing
 0.1.x: initial experimental hash-based extractor
 ```

@@ -7,7 +7,7 @@ from typing import Any, Generic, Sequence, TypeVar
 import httpx
 
 DEFAULT_API_URL = "https://nuclear-api.datanode.live"
-DEFAULT_TIMEOUT = 10.0
+DEFAULT_TIMEOUT = 30.0
 T = TypeVar("T")
 
 

@@ -22,6 +22,11 @@ class FakeRedis:
     def llen(self, key: str) -> int:
         return len(self.items)
 
+    def blpop(self, keys: list[str], timeout: int = 0) -> tuple[str, bytes] | None:
+        if not self.items:
+            return None
+        return keys[0], self.items.pop(0)
+
 
 def test_random_int_uses_rejection_sampling() -> None:
     client = FakeRedis()
@@ -33,3 +38,13 @@ def test_random_int_uses_rejection_sampling() -> None:
     assert result.value == 42
     assert result.bits_used == 14
     assert result.rejected == 1
+
+
+def test_random_int_waits_for_entropy_when_pool_is_empty() -> None:
+    client = FakeRedis()
+    client.rpush("pool", bytes([160]))
+    source = RedisEntropySource(client, "pool")
+
+    result = source.random_int(10)
+
+    assert result.value == 10

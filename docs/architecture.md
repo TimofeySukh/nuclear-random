@@ -43,6 +43,8 @@ This avoids modulo bias.
 
 The same algorithm is used for any non-negative maximum value. For example, `nuclear_random(10_000)` reads 14-bit candidates and rejects values greater than `10_000`.
 
+If the Redis pool is empty, the API waits up to `RANDOM_WAIT_SECONDS` for a fresh extracted byte before returning `503`.
+
 ## Redis
 
 Redis stores the extracted entropy byte pool at `nuclear_random:v2:entropy_bytes`.

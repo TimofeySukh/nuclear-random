@@ -71,7 +71,10 @@ class RedisEntropySource:
     def _load_more(self) -> None:
         chunk = self._client.lpop(self._key, settings.redis_max_lpop_count)
         if not chunk:
-            raise EntropyPoolEmpty("The entropy pool is empty.")
+            blocked = self._client.blpop([self._key], timeout=settings.random_wait_seconds)
+            if not blocked:
+                raise EntropyPoolEmpty("The entropy pool is empty.")
+            _, chunk = blocked
 
         self._buffer = bytearray()
         for item in chunk if isinstance(chunk, list) else [chunk]:

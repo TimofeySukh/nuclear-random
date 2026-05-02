@@ -9,7 +9,7 @@ from .rate_limit import RateLimitExceeded, make_rate_limiter
 from .settings import settings
 from .stats import make_stats_store
 
-app = FastAPI(title="Nuclear Random API", version="0.1.0")
+app = FastAPI(title="Nuclear Random API", version="0.2.1")
 entropy_source = make_entropy_source()
 stats_store = make_stats_store()
 entropy_ingestor = EntropyIngestor(stats_store=stats_store)

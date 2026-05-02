@@ -84,6 +84,12 @@ RAW_BITS_PER_CLICK=2
 
 This is intentionally conservative. Increasing it makes the service faster but requires statistical justification.
 
+When the pool is empty, random endpoints wait for fresh entropy before returning an error:
+
+```text
+RANDOM_WAIT_SECONDS=20
+```
+
 ## Collector Placement
 
 The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:
