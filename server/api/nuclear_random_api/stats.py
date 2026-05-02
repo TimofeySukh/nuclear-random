@@ -13,6 +13,9 @@ class ServiceStatus:
     pool_size_bytes: int
     total_clicks: int
     total_entropy_bytes: int
+    total_raw_bits: int
+    total_extracted_bits: int
+    total_discarded_pairs: int
     total_random_requests: int
     total_bits_served: int
     total_rejections: int
@@ -35,6 +38,9 @@ class StatsStore:
         timestamp_ns: int,
         source: str,
         dt_us: int,
+        raw_bits_seen: int,
+        extracted_bits_added: int,
+        discarded_pairs: int,
         entropy_bytes_added: int,
     ) -> None:
         timestamp_ms = timestamp_ns // 1_000_000
@@ -43,6 +49,9 @@ class StatsStore:
 
         pipe = self._client.pipeline()
         pipe.hincrby(self._stats_key, "total_clicks", 1)
+        pipe.hincrby(self._stats_key, "total_raw_bits", raw_bits_seen)
+        pipe.hincrby(self._stats_key, "total_extracted_bits", extracted_bits_added)
+        pipe.hincrby(self._stats_key, "total_discarded_pairs", discarded_pairs)
         pipe.hincrby(self._stats_key, "total_entropy_bytes", entropy_bytes_added)
         pipe.hset(
             self._stats_key,
@@ -83,6 +92,9 @@ class StatsStore:
             pool_size_bytes=pool_size_bytes,
             total_clicks=_int(stats.get("total_clicks")),
             total_entropy_bytes=_int(stats.get("total_entropy_bytes")),
+            total_raw_bits=_int(stats.get("total_raw_bits")),
+            total_extracted_bits=_int(stats.get("total_extracted_bits")),
+            total_discarded_pairs=_int(stats.get("total_discarded_pairs")),
             total_random_requests=_int(stats.get("total_random_requests")),
             total_bits_served=_int(stats.get("total_bits_served")),
             total_rejections=_int(stats.get("total_rejections")),
@@ -118,4 +130,3 @@ def _int_or_none(value: str | None) -> int | None:
         return int(value)
     except ValueError:
         return None
-

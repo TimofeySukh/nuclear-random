@@ -89,8 +89,12 @@ def test_service_status_returns_dataclass() -> None:
             200,
             json={
                 "pool_size_bytes": 128,
+                "pool_bits": 1024,
                 "total_clicks": 10,
                 "total_entropy_bytes": 160,
+                "total_raw_bits": 20,
+                "total_extracted_bits": 8,
+                "total_discarded_pairs": 6,
                 "total_random_requests": 2,
                 "total_bits_served": 14,
                 "total_rejections": 1,
@@ -106,6 +110,9 @@ def test_service_status_returns_dataclass() -> None:
     status = service_status(api_url="https://api.example.test")
 
     assert status.pool_size_bytes == 128
+    assert status.pool_bits == 1024
+    assert status.total_raw_bits == 20
+    assert status.total_extracted_bits == 8
     assert status.estimated_cpm == 5
     assert status.last_click_source == "esp32c3_gpio6_wifi"
 
@@ -131,4 +138,3 @@ def test_nuclear_random_wraps_service_errors() -> None:
 
     with pytest.raises(NuclearRandomError, match="Entropy pool is empty"):
         nuclear_random(100, api_url="https://api.example.test")
-

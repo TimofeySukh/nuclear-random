@@ -1,17 +1,35 @@
 # Architecture
 
-Nuclear Random turns Geiger counter click timing into a small public random-number service.
+Nuclear Random turns Geiger counter decay timing into a small public random-number service.
 
 ## Data Flow
 
 1. An ESP32-C3 listens for falling edges from the Geiger counter on GPIO 6.
 2. On each accepted pulse, the firmware sends a JSON event over Wi-Fi to `/v1/entropy/click`.
-3. The API records the receive timestamp. It takes the fractional nanoseconds of that timestamp as eight bytes, mixes in the ESP32 sequence number, ESP32 `micros()` value, and pulse delta, then hashes the payload with BLAKE2s.
-4. The API pushes the resulting bytes into Redis and writes click telemetry to InfluxDB.
-5. The API pops entropy bytes from Redis and serves unbiased integers with rejection sampling.
-6. The Python package calls the public API and returns an integer to the user.
+3. The API extracts a small number of raw timing bits from `dt_us`, the time between clicks.
+4. Raw bits pass through a Von Neumann debiasing extractor: `01 -> 0`, `10 -> 1`, `00/11 -> discard`.
+5. The API packs accepted bits into bytes, pushes only full extracted bytes into Redis, and writes raw click telemetry to InfluxDB.
+6. The API pops extracted bits from Redis and serves unbiased integers with rejection sampling.
+7. The Python package calls the public API and returns an integer to the user.
 
-The API also stores lightweight service stats in Redis for `/v1/status`, including pool size, total clicks, total entropy bytes, random request counts, and estimated CPM.
+The API also stores lightweight service stats in Redis for `/v1/status`, including pool size, total clicks, raw bits, extracted bits, discarded pairs, random request counts, and estimated CPM.
+
+## Extraction
+
+Each click provides `dt_us`, the number of microseconds since the previous click.
+
+The API takes `RAW_BITS_PER_CLICK` low bits from `dt_us`, defaulting to `2`. These are raw timing bits, not final output bits.
+
+The Von Neumann extractor consumes raw bits in pairs:
+
+```text
+01 -> 0
+10 -> 1
+00 -> discard
+11 -> discard
+```
+
+Accepted bits are packed into bytes. Redis receives only complete extracted bytes.
 
 ## Range Algorithm
 
@@ -27,15 +45,15 @@ The same algorithm is used for any non-negative maximum value. For example, `nuc
 
 ## Redis
 
-Redis stores the entropy byte pool at `nuclear_random:entropy_bytes`.
+Redis stores the extracted entropy byte pool at `nuclear_random:v2:entropy_bytes`.
 
-The collector bounds the pool with `MAX_POOL_BYTES`, defaulting to `1 MiB`. Redis is configured with `64 MiB` max memory in Docker Compose to protect a small home server.
+The API bounds the pool with `MAX_POOL_BYTES`, defaulting to `1 MiB`. Redis is configured with `64 MiB` max memory in Docker Compose to protect a small home server.
 
 Redis also stores:
 
-- service counters at `nuclear_random:stats`
-- recent click timestamps at `nuclear_random:click_times`
-- per-client random endpoint rate limit keys under `nuclear_random:rate:*`
+- service counters at `nuclear_random:v2:stats`
+- recent click timestamps at `nuclear_random:v2:click_times`
+- per-client random endpoint rate limit keys under `nuclear_random:v2:rate:*`
 
 ## InfluxDB
 
@@ -46,7 +64,10 @@ InfluxDB stores operational telemetry, not the entropy source of truth. The `gei
 - device time
 - device-provided `dt_us`
 - Redis pool size
+- raw bits seen
+- extracted bits added
+- discarded Von Neumann pairs
 
 ## Security Notes
 
-This is an experimental entropy service. The collector hashes timing data before inserting bytes into Redis, but the project has not had a cryptographic audit. Do not use it as the only entropy source for high-stakes cryptographic key generation until the full pipeline has been reviewed and tested.
+This is an experimental QRNG-style entropy service. It uses radioactive decay timing and Von Neumann debiasing, but it is not certified. Do not use it as the only entropy source for high-stakes cryptographic key generation until the full pipeline has been reviewed and tested.

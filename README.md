@@ -1,6 +1,6 @@
 # Nuclear Random
 
-Experimental Python random integers backed by Geiger counter click timing.
+Experimental Python random integers backed by Geiger counter decay timing.
 
 ```bash
 pip install nuclear-random
@@ -12,7 +12,7 @@ from nuclear_random import choice, nuclear_random, randint, random_bytes, servic
 print(nuclear_random(100))      # 0..100 inclusive
 print(nuclear_random(10_000))   # 0..10000 inclusive
 print(randint(10, 20))          # 10..20 inclusive
-print(random_bytes(16).hex())   # 16 bytes from the entropy pool
+print(random_bytes(16).hex())   # 16 extracted bytes from the entropy pool
 print(choice(["red", "green", "blue"]))
 
 status = service_status()
@@ -21,7 +21,9 @@ print(status.pool_size_bytes, status.estimated_cpm)
 
 ## How It Works
 
-The public API consumes entropy bytes collected from an ESP32-C3 connected to a Geiger counter on GPIO 6. For any request `nuclear_random(max_value)`, the API reads `max_value.bit_length()` bits and returns the candidate only if it is `<= max_value`. Candidates above the requested maximum are rejected and the API reads the next bits.
+The public API consumes extracted bits from an ESP32-C3 connected to a Geiger counter on GPIO 6. Each click sends the time since the previous click. The server takes a small number of raw timing bits and runs them through a Von Neumann debiasing extractor before storing full bytes in Redis.
+
+For any request `nuclear_random(max_value)`, the API reads `max_value.bit_length()` extracted bits and returns the candidate only if it is `<= max_value`. Candidates above the requested maximum are rejected and the API reads the next bits.
 
 This rejection-sampling step avoids modulo bias.
 
@@ -50,10 +52,10 @@ nuclear_random(131, api_url="http://127.0.0.1:19000")
 The server stack is Docker-only and includes:
 
 - FastAPI API
-- Redis entropy byte pool
+- Redis extracted entropy byte pool
 - InfluxDB telemetry
 - Wi-Fi ingest endpoint for the ESP32-C3
-- serial collector fallback for USB deployments
+- USB serial monitor for diagnostics
 - status metrics for the future website
 - Redis-backed public API rate limiting
 
@@ -80,7 +82,7 @@ POST /v1/entropy/click
 
 ## Status
 
-This project is alpha-quality. It is suitable for experimentation and public demos, but it has not been cryptographically audited.
+This project is alpha-quality. It uses radioactive decay timing with Von Neumann debiasing, but it has not been cryptographically certified.
 
 ## License
 

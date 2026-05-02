@@ -1,34 +1,23 @@
 from __future__ import annotations
 
-import hashlib
-import struct
 import time
 from dataclasses import dataclass
 
 import redis
 from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
 
+from .extractor import VonNeumannExtractor, raw_bits_from_dt_us
 from .settings import settings
 from .stats import StatsStore, make_stats_store
-
-
-def timestamp_fraction_to_seed(timestamp_ns: int) -> bytes:
-    fraction_ns = timestamp_ns % 1_000_000_000
-    return struct.pack(">Q", fraction_ns)
-
-
-def whiten_click(timestamp_ns: int, sequence: int, device_time_us: int, dt_us: int) -> bytes:
-    payload = timestamp_fraction_to_seed(timestamp_ns)
-    payload += struct.pack(">Q", max(sequence, 0))
-    payload += struct.pack(">Q", max(device_time_us, 0))
-    payload += struct.pack(">Q", max(dt_us, 0))
-    return hashlib.blake2s(payload, digest_size=16, person=b"nucrand1").digest()
 
 
 @dataclass(frozen=True)
 class IngestResult:
     accepted: bool
     pool_size_bytes: int
+    raw_bits_seen: int
+    extracted_bits_added: int
+    discarded_pairs: int
     entropy_bytes_added: int
 
 
@@ -37,6 +26,7 @@ class EntropyIngestor:
         self._redis = redis.Redis.from_url(settings.redis_url, decode_responses=False)
         self._influx = self._make_influx_client()
         self._stats = stats_store or make_stats_store()
+        self._extractor = VonNeumannExtractor()
 
     def ingest_click(
         self,
@@ -49,13 +39,17 @@ class EntropyIngestor:
         dropped: int,
     ) -> IngestResult:
         timestamp_ns = time.time_ns()
-        entropy = whiten_click(timestamp_ns, sequence, device_time_us, dt_us)
-        pool_size = self._push_entropy(entropy)
+        raw_bits = raw_bits_from_dt_us(dt_us, bit_count=settings.raw_bits_per_click)
+        extracted = self._extractor.feed_raw_bits(raw_bits)
+        pool_size = self._push_entropy(extracted.output_bytes)
         self._stats.record_click(
             timestamp_ns=timestamp_ns,
             source=source,
             dt_us=dt_us,
-            entropy_bytes_added=len(entropy),
+            raw_bits_seen=extracted.raw_bits_seen,
+            extracted_bits_added=extracted.accepted_bit_count,
+            discarded_pairs=extracted.discarded_pairs,
+            entropy_bytes_added=len(extracted.output_bytes),
         )
         self._write_click(
             timestamp_ns=timestamp_ns,
@@ -66,10 +60,22 @@ class EntropyIngestor:
             total=total,
             dropped=dropped,
             pool_size_bytes=pool_size,
+            raw_bits_seen=extracted.raw_bits_seen,
+            extracted_bits_added=extracted.accepted_bit_count,
+            discarded_pairs=extracted.discarded_pairs,
         )
-        return IngestResult(accepted=True, pool_size_bytes=pool_size, entropy_bytes_added=len(entropy))
+        return IngestResult(
+            accepted=True,
+            pool_size_bytes=pool_size,
+            raw_bits_seen=extracted.raw_bits_seen,
+            extracted_bits_added=extracted.accepted_bit_count,
+            discarded_pairs=extracted.discarded_pairs,
+            entropy_bytes_added=len(extracted.output_bytes),
+        )
 
     def _push_entropy(self, entropy: bytes) -> int:
+        if not entropy:
+            return int(self._redis.llen(settings.redis_entropy_key))
         pipe = self._redis.pipeline()
         pipe.rpush(settings.redis_entropy_key, *[bytes([value]) for value in entropy])
         pipe.ltrim(settings.redis_entropy_key, -settings.max_pool_bytes, -1)
@@ -98,6 +104,9 @@ class EntropyIngestor:
         total: int,
         dropped: int,
         pool_size_bytes: int,
+        raw_bits_seen: int,
+        extracted_bits_added: int,
+        discarded_pairs: int,
     ) -> None:
         if self._influx is None:
             return
@@ -112,6 +121,9 @@ class EntropyIngestor:
             .field("total", total)
             .field("dropped", dropped)
             .field("pool_size_bytes", pool_size_bytes)
+            .field("raw_bits_seen", raw_bits_seen)
+            .field("extracted_bits_added", extracted_bits_added)
+            .field("discarded_pairs", discarded_pairs)
             .time(timestamp_ns, WritePrecision.NS)
         )
         client.write_api(write_options=WriteOptions(batch_size=1)).write(bucket=bucket, org=org, record=point)

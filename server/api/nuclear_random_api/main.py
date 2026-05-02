@@ -81,8 +81,12 @@ def service_status() -> dict[str, int | float | str | None]:
     status = stats_store.status(pool_size_bytes=entropy_source.pool_size())
     return {
         "pool_size_bytes": status.pool_size_bytes,
+        "pool_bits": status.pool_size_bytes * 8,
         "total_clicks": status.total_clicks,
         "total_entropy_bytes": status.total_entropy_bytes,
+        "total_raw_bits": status.total_raw_bits,
+        "total_extracted_bits": status.total_extracted_bits,
+        "total_discarded_pairs": status.total_discarded_pairs,
         "total_random_requests": status.total_random_requests,
         "total_bits_served": status.total_bits_served,
         "total_rejections": status.total_rejections,
@@ -114,6 +118,9 @@ def ingest_click(
         "accepted": result.accepted,
         "pool_size_bytes": result.pool_size_bytes,
         "entropy_bytes_added": result.entropy_bytes_added,
+        "raw_bits_seen": result.raw_bits_seen,
+        "extracted_bits_added": result.extracted_bits_added,
+        "discarded_pairs": result.discarded_pairs,
     }
 
 

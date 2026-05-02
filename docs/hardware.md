@@ -49,4 +49,4 @@ The firmware posts click events over Wi-Fi and also prints JSON lines over USB f
 {"source":"esp32c3_gpio6_wifi","sequence":17,"device_time_us":123456,"dt_us":900000,"total":17,"dropped":0}
 ```
 
-The API records the server receive timestamp and uses the fractional nanoseconds from that timestamp as the main timing input. The ESP32-provided `micros()` value and inter-click delta are mixed into the same hash.
+The API uses the ESP32-provided inter-click delta, `dt_us`, as the raw timing measurement. Only a small number of raw timing bits are extracted from each click, then cleaned with Von Neumann debiasing before entering the Redis entropy pool.

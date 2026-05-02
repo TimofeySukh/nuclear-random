@@ -56,8 +56,12 @@ class BytesResponse:
 @dataclass(frozen=True)
 class ServiceStatus:
     pool_size_bytes: int
+    pool_bits: int
     total_clicks: int
     total_entropy_bytes: int
+    total_raw_bits: int
+    total_extracted_bits: int
+    total_discarded_pairs: int
     total_random_requests: int
     total_bits_served: int
     total_rejections: int
@@ -72,8 +76,12 @@ class ServiceStatus:
         try:
             return cls(
                 pool_size_bytes=int(payload["pool_size_bytes"]),
+                pool_bits=int(payload["pool_bits"]),
                 total_clicks=int(payload["total_clicks"]),
                 total_entropy_bytes=int(payload["total_entropy_bytes"]),
+                total_raw_bits=int(payload["total_raw_bits"]),
+                total_extracted_bits=int(payload["total_extracted_bits"]),
+                total_discarded_pairs=int(payload["total_discarded_pairs"]),
                 total_random_requests=int(payload["total_random_requests"]),
                 total_bits_served=int(payload["total_bits_served"]),
                 total_rejections=int(payload["total_rejections"]),

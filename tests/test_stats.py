@@ -100,6 +100,9 @@ def test_stats_store_records_click_and_random_draw() -> None:
         timestamp_ns=1_000_000_000,
         source="test",
         dt_us=123,
+        raw_bits_seen=2,
+        extracted_bits_added=1,
+        discarded_pairs=0,
         entropy_bytes_added=16,
     )
     store.record_random_draw(bits_used=7, rejected=1)
@@ -108,6 +111,9 @@ def test_stats_store_records_click_and_random_draw() -> None:
     assert status.pool_size_bytes == 16
     assert status.total_clicks == 1
     assert status.total_entropy_bytes == 16
+    assert status.total_raw_bits == 2
+    assert status.total_extracted_bits == 1
+    assert status.total_discarded_pairs == 0
     assert status.total_random_requests == 1
     assert status.total_bits_served == 7
     assert status.total_rejections == 1

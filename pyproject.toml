@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "nuclear-random"
-version = "0.1.0"
-description = "Client library for unbiased random integers backed by Geiger counter entropy."
+version = "0.2.0"
+description = "Client library for unbiased random integers backed by Geiger counter decay timing."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
@@ -34,7 +34,6 @@ server = [
 ]
 collector = [
   "pyserial>=3.5",
-  "redis>=5.0",
   "influxdb-client>=1.43",
 ]
 dev = [

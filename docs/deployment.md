@@ -46,7 +46,7 @@ Cloudflare DNS must contain:
 
 ```text
 Type: CNAME
-Name: random
+Name: nuclear-api
 Target: a58c8086-b534-454d-99d0-bf8006633e1b.cfargotunnel.com
 Proxy: enabled
 ```
@@ -76,6 +76,14 @@ The public random endpoint is rate limited with Redis. The default is `120` requ
 RANDOM_RATE_LIMIT_PER_MINUTE=120
 ```
 
+The extraction rate is controlled with:
+
+```text
+RAW_BITS_PER_CLICK=2
+```
+
+This is intentionally conservative. Increasing it makes the service faster but requires statistical justification.
+
 ## Collector Placement
 
 The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:
@@ -86,10 +94,10 @@ https://nuclear-api.datanode.live/v1/entropy/click
 
 The firmware `INGEST_TOKEN` must match `INGEST_TOKEN` in `/home/server/nuclear_random/server/.env`.
 
-The legacy USB collector is kept as a fallback. It must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
+The USB collector is diagnostic-only. The QRNG entropy path is Wi-Fi ingest through `/v1/entropy/click`. If the board is plugged into the home server and you want serial telemetry in InfluxDB, run:
 
 ```bash
 docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
-If the board stays on a laptop or workstation, run the collector there and point it at the server Redis endpoint through a private network or SSH tunnel.
+The USB collector does not write entropy into Redis.
