@@ -3,6 +3,7 @@ services:
     image: redis:7-alpine
     container_name: nuclear-random-redis
     restart: unless-stopped
+    mem_limit: 96m
     command: ["redis-server", "--save", "60", "1", "--appendonly", "yes", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
     volumes:
       - redis-data:/data
@@ -13,6 +14,7 @@ services:
     image: influxdb:2.7-alpine
     container_name: nuclear-random-influxdb
     restart: unless-stopped
+    mem_limit: 512m
     ports:
       - "127.0.0.1:${INFLUXDB_HOST_PORT:-19086}:8086"
     environment:
@@ -33,6 +35,7 @@ services:
       dockerfile: server/api/Dockerfile
     container_name: nuclear-random-api
     restart: unless-stopped
+    mem_limit: 192m
     depends_on:
       - redis
     environment:
@@ -50,6 +53,7 @@ services:
       dockerfile: server/collector/Dockerfile
     container_name: nuclear-random-collector
     restart: unless-stopped
+    mem_limit: 128m
     profiles: ["collector"]
     depends_on:
       - redis
@@ -76,4 +80,3 @@ networks:
 volumes:
   redis-data:
   influxdb-data:
-

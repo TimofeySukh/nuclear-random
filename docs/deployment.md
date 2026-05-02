@@ -27,29 +27,40 @@ ingress:
   - service: http_status:404
 ```
 
-Recommended integration:
+Chosen integration for the home server:
 
 1. Copy this repository to `/home/server/nuclear_random`.
 2. Start the Docker stack with API bound to `127.0.0.1:19000`.
 3. Add one Cloudflare ingress entry before the final `http_status:404` rule:
 
 ```yaml
-  - hostname: api.nuclear-random.example.com
+  - hostname: random.datanode.live
     service: http://127.0.0.1:19000
 ```
 
 4. Reload or restart only the existing Cloudflare tunnel service after confirming the hostname.
 
-No tunnel change has been applied automatically because the public hostname must be chosen first.
+The current deployment target is `random.datanode.live`.
 
 ## Memory Defaults
 
 The compose file uses conservative defaults:
 
-- Redis max memory: `64 MiB`
+- Redis container limit: `96 MiB`
+- Redis internal max memory: `64 MiB`
 - Entropy pool: `1 MiB`
-- API: one Uvicorn process
-- Collector: one serial reader process
+- InfluxDB container limit: `512 MiB`
+- API container limit: `192 MiB`
+- Collector container limit: `128 MiB`
 
-InfluxDB is the heaviest service. If the server is too tight on memory, run Redis and API first, then add InfluxDB after confirming available RAM.
+The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the heaviest service, so check `docker stats` after startup.
 
+## Collector Placement
+
+The collector must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
+
+```bash
+docker compose --project-directory server --profile collector up -d collector
+```
+
+If the board stays on a laptop or workstation, run the collector there and point it at the server Redis endpoint through a private network or SSH tunnel.
