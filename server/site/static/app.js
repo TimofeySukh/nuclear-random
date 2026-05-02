@@ -18,6 +18,8 @@ const nodes = {
   chart: document.querySelector("#click-chart"),
   rateChart: document.querySelector("#rate-chart"),
   extractorChart: document.querySelector("#extractor-chart"),
+  poolChart: document.querySelector("#pool-chart"),
+  cpmChart: document.querySelector("#cpm-chart"),
   maxValue: document.querySelector("#max-value"),
   drawButton: document.querySelector("#draw-button"),
   drawResult: document.querySelector("#draw-result"),
@@ -28,6 +30,7 @@ const nodes = {
 
 let lastTimeline = [];
 let lastStatus = null;
+let statusHistory = [];
 
 function formatInteger(value) {
   return new Intl.NumberFormat("en-US").format(Number(value || 0));
@@ -64,11 +67,13 @@ function route() {
     drawChart(lastTimeline);
     drawRateChart(lastTimeline);
     drawExtractorChart(lastStatus);
+    drawStatusHistoryCharts();
   }
 }
 
 function renderStatus(status) {
   lastStatus = status;
+  statusHistory = [...statusHistory, status].slice(-90);
   nodes.pill.classList.add("online");
   nodes.pill.lastChild.textContent = " Online";
   nodes.latestUpdate.textContent = formatTime();
@@ -80,6 +85,7 @@ function renderStatus(status) {
   nodes.rawBits.textContent = formatInteger(status.total_raw_bits);
   nodes.discardedPairs.textContent = formatInteger(status.total_discarded_pairs);
   drawExtractorChart(status);
+  drawStatusHistoryCharts();
 }
 
 async function refreshStatus() {
@@ -258,6 +264,66 @@ function drawExtractorChart(status) {
   }
 }
 
+function drawStatusHistoryCharts() {
+  drawLineSeries(
+    nodes.poolChart,
+    statusHistory.map((status) => status.pool_bits),
+    "#4dffac",
+    "pool bits",
+  );
+  drawLineSeries(
+    nodes.cpmChart,
+    statusHistory.map((status) => status.estimated_cpm),
+    "#ff9b45",
+    "CPM",
+  );
+}
+
+function drawLineSeries(canvas, values, color, label) {
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { context, width, height } = setup;
+  const padding = { left: 46, right: 14, top: 18, bottom: 30 };
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+  const maxValue = Math.max(1, ...values);
+
+  context.strokeStyle = "rgba(98, 215, 255, 0.09)";
+  context.fillStyle = "#92aaa3";
+  context.font = "11px ui-monospace, monospace";
+  for (let index = 0; index <= 3; index += 1) {
+    const y = padding.top + chartHeight - (chartHeight * index) / 3;
+    context.beginPath();
+    context.moveTo(padding.left, y);
+    context.lineTo(width - padding.right, y);
+    context.stroke();
+    context.fillText(String(Math.round((maxValue * index) / 3)), 8, y + 4);
+  }
+
+  if (values.length < 2) {
+    context.fillText(`Waiting for ${label} samples.`, padding.left, padding.top + 24);
+    return;
+  }
+
+  const coordinates = values.map((value, index) => ({
+    x: padding.left + (index / Math.max(1, values.length - 1)) * chartWidth,
+    y: padding.top + chartHeight - (value / maxValue) * chartHeight,
+  }));
+  context.beginPath();
+  for (const [index, point] of coordinates.entries()) {
+    if (index === 0) {
+      context.moveTo(point.x, point.y);
+    } else {
+      context.lineTo(point.x, point.y);
+    }
+  }
+  context.strokeStyle = color;
+  context.lineWidth = 3;
+  context.stroke();
+}
+
 async function drawNumber() {
   const max = Number.parseInt(nodes.maxValue.value, 10);
   if (!Number.isSafeInteger(max) || max < 0) {
@@ -306,6 +372,7 @@ window.addEventListener("resize", () => {
   drawChart(lastTimeline);
   drawRateChart(lastTimeline);
   drawExtractorChart(lastStatus);
+  drawStatusHistoryCharts();
 });
 nodes.drawButton.addEventListener("click", drawNumber);
 nodes.choiceButton.addEventListener("click", chooseItem);

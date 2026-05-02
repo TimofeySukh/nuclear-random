@@ -7,7 +7,7 @@ It is a static site served by a small Nginx container. The same container proxie
 The interface is split into pages:
 
 - Overview: live service cards
-- Entropy: rolling Geiger click chart, per-bucket click activity, and extractor counters
+- Entropy: rolling Geiger click chart, per-bucket click activity, extractor counters, pool history, and CPM history
 - Draw: public random-number and choice request tools
 - Docs: Python install, helper API, and entropy path
 

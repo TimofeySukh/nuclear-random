@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Nuclear Random</title>
-    <link rel="stylesheet" href="/styles.css?v=5" />
+    <link rel="stylesheet" href="/styles.css?v=6" />
   </head>
   <body>
     <main class="shell">
@@ -138,6 +138,28 @@
             <canvas id="extractor-chart" width="700" height="280"></canvas>
           </article>
         </section>
+        <section class="chart-row">
+          <article class="chart-card compact-chart">
+            <div class="chart-title">
+              <div>
+                <p class="eyebrow">POOL DEPTH</p>
+                <h2>Live bit buffer</h2>
+              </div>
+              <span>Browser session</span>
+            </div>
+            <canvas id="pool-chart" width="700" height="280"></canvas>
+          </article>
+          <article class="chart-card compact-chart">
+            <div class="chart-title">
+              <div>
+                <p class="eyebrow">CPM HISTORY</p>
+                <h2>Click rate trace</h2>
+              </div>
+              <span>Browser session</span>
+            </div>
+            <canvas id="cpm-chart" width="700" height="280"></canvas>
+          </article>
+        </section>
       </section>
 
       <section class="page" id="draw-page">
@@ -214,6 +236,6 @@ print(nuclear_randint(10, 20))</code></pre>
       </section>
     </main>
 
-    <script src="/app.js?v=5" type="module"></script>
+    <script src="/app.js?v=6" type="module"></script>
   </body>
 </html>
