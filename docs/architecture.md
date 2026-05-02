@@ -23,6 +23,8 @@ For `nuclear_random(131)`, the API reads 8 bits, producing a candidate in `0..25
 
 This avoids modulo bias.
 
+The same algorithm is used for any non-negative maximum value. For example, `nuclear_random(10_000)` reads 14-bit candidates and rejects values greater than `10_000`.
+
 ## Redis
 
 Redis stores the entropy byte pool at `nuclear_random:entropy_bytes`.

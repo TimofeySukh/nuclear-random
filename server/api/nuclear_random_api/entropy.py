@@ -48,6 +48,11 @@ class RedisEntropySource:
                 )
             rejected += 1
 
+    def random_bytes(self, length: int) -> bytes:
+        if length < 0:
+            raise ValueError("length must be greater than or equal to zero.")
+        return bytes(self._read_bits(8) for _ in range(length))
+
     def pool_size(self) -> int:
         return int(self._client.llen(self._key))
 
@@ -80,4 +85,3 @@ class RedisEntropySource:
 def make_entropy_source() -> RedisEntropySource:
     client = redis.Redis.from_url(settings.redis_url, decode_responses=False)
     return RedisEntropySource(client, settings.redis_entropy_key)
-

@@ -7,15 +7,21 @@ pip install nuclear-random
 ```
 
 ```python
-from nuclear_random import nuclear_random
+from nuclear_random import choice, nuclear_random, randint, random_bytes, service_status
 
-value = nuclear_random(100)
-print(value)  # 0..100 inclusive
+print(nuclear_random(100))      # 0..100 inclusive
+print(nuclear_random(10_000))   # 0..10000 inclusive
+print(randint(10, 20))          # 10..20 inclusive
+print(random_bytes(16).hex())   # 16 bytes from the entropy pool
+print(choice(["red", "green", "blue"]))
+
+status = service_status()
+print(status.pool_size_bytes, status.estimated_cpm)
 ```
 
 ## How It Works
 
-The public API consumes entropy bytes collected from an ESP32-C3 connected to a Geiger counter on GPIO 6. For a request like `nuclear_random(100)`, the API reads 7 bits, builds a candidate in `0..127`, and returns it only if it is `<= 100`. Candidates above the requested maximum are rejected and the API reads the next 7 bits.
+The public API consumes entropy bytes collected from an ESP32-C3 connected to a Geiger counter on GPIO 6. For any request `nuclear_random(max_value)`, the API reads `max_value.bit_length()` bits and returns the candidate only if it is `<= max_value`. Candidates above the requested maximum are rejected and the API reads the next bits.
 
 This rejection-sampling step avoids modulo bias.
 
@@ -68,6 +74,7 @@ Useful API endpoints:
 GET  /healthz
 GET  /v1/status
 GET  /v1/random/int?max=100
+GET  /v1/random/bytes?length=16
 POST /v1/entropy/click
 ```
 

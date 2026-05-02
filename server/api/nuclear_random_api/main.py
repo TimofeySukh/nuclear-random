@@ -54,6 +54,28 @@ def random_int(request: Request, max_value: int = Query(alias="max", ge=0)) -> d
     }
 
 
+@app.get("/v1/random/bytes")
+def random_bytes(request: Request, length: int = Query(ge=0, le=4096)) -> dict[str, int | str]:
+    try:
+        rate_limiter.check(identity=_client_identity(request))
+    except RateLimitExceeded as exc:
+        raise HTTPException(status_code=429, detail=str(exc)) from exc
+
+    try:
+        data = entropy_source.random_bytes(length)
+    except EntropyPoolEmpty as exc:
+        raise HTTPException(status_code=503, detail="Entropy pool is empty. Try again later.") from exc
+
+    bits_used = length * 8
+    stats_store.record_random_draw(bits_used=bits_used, rejected=0)
+    return {
+        "hex": data.hex(),
+        "length": length,
+        "bits_used": bits_used,
+        "pool_size_bytes": entropy_source.pool_size(),
+    }
+
+
 @app.get("/v1/status")
 def service_status() -> dict[str, int | float | str | None]:
     status = stats_store.status(pool_size_bytes=entropy_source.pool_size())
