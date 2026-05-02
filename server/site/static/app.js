@@ -19,6 +19,9 @@ const nodes = {
   maxValue: document.querySelector("#max-value"),
   drawButton: document.querySelector("#draw-button"),
   drawResult: document.querySelector("#draw-result"),
+  choiceValues: document.querySelector("#choice-values"),
+  choiceButton: document.querySelector("#choice-button"),
+  choiceResult: document.querySelector("#choice-result"),
 };
 
 let lastTimeline = [];
@@ -192,9 +195,33 @@ async function drawNumber() {
   }
 }
 
+async function chooseItem() {
+  const options = nodes.choiceValues.value
+    .split("\n")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!options.length) {
+    nodes.choiceResult.textContent = "Enter at least one option.";
+    return;
+  }
+
+  nodes.choiceButton.disabled = true;
+  nodes.choiceResult.textContent = "Drawing QRNG-backed index...";
+  try {
+    const payload = await fetchJson(`${randomUrl}?max=${options.length - 1}`);
+    nodes.choiceResult.textContent = `Index ${payload.value}: ${options[payload.value]}`;
+    await Promise.all([refreshStatus(), refreshTimeline()]);
+  } catch (error) {
+    nodes.choiceResult.textContent = error.message;
+  } finally {
+    nodes.choiceButton.disabled = false;
+  }
+}
+
 window.addEventListener("hashchange", route);
 window.addEventListener("resize", () => drawChart(lastTimeline));
 nodes.drawButton.addEventListener("click", drawNumber);
+nodes.choiceButton.addEventListener("click", chooseItem);
 route();
 refreshStatus();
 refreshTimeline();

@@ -29,6 +29,18 @@ For any request `nuclear_random(max_value)`, the API reads `max_value.bit_length
 
 This rejection-sampling step avoids modulo bias.
 
+## Client API
+
+```python
+from nuclear_random import choice, nuclear_random, randint, random_bytes, service_status
+```
+
+- `nuclear_random(max_value)` returns an integer in `0..max_value`.
+- `randint(min_value, max_value)` returns an integer in `min_value..max_value`.
+- `choice(items)` returns one item from a non-empty sequence by drawing a QRNG-backed index.
+- `random_bytes(length)` returns extracted bytes from the entropy pool. This is slow on the public service.
+- `service_status()` returns pool size, click rate, and extractor counters.
+
 ## Configuration
 
 By default the client uses:

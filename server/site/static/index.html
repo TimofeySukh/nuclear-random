@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Nuclear Random</title>
-    <link rel="stylesheet" href="/styles.css?v=3" />
+    <link rel="stylesheet" href="/styles.css?v=4" />
   </head>
   <body>
     <main class="shell">
@@ -24,6 +24,13 @@
               A public Python random service backed by live radioactive decay timing,
               conservative bit extraction, and rejection sampling.
             </p>
+            <div class="pulse-rail" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
           <aside class="status-panel">
             <div class="pill" id="health-pill"><span></span> Connecting</div>
@@ -53,6 +60,23 @@
             <p class="label">RATE</p>
             <strong id="cpm">-- CPM</strong>
             <span>Recent click rate from the ESP32 node.</span>
+          </article>
+        </section>
+        <section class="lab-strip">
+          <article>
+            <p class="label">MODE</p>
+            <strong>Scientific</strong>
+            <span>No synthetic bytes from click hashes.</span>
+          </article>
+          <article>
+            <p class="label">EXTRACTOR</p>
+            <strong>Von Neumann</strong>
+            <span>01 and 10 survive. 00 and 11 are rejected.</span>
+          </article>
+          <article>
+            <p class="label">PACKAGE</p>
+            <strong>nuclear-random</strong>
+            <span>Number, randint, choice, bytes, status.</span>
           </article>
         </section>
       </section>
@@ -100,14 +124,26 @@
           <h1>Pull one number.</h1>
           <p class="lead">This consumes real extracted bits from the same public entropy pool.</p>
         </section>
-        <section class="single-column">
+        <section class="tool-grid">
           <article class="deck">
+            <p class="eyebrow">INTEGER</p>
             <div class="draw-row">
               <label for="max-value">Max value</label>
               <input id="max-value" type="number" min="0" max="1000000000000" value="10" />
             </div>
             <button class="button full" id="draw-button">Draw number</button>
             <div class="result" id="draw-result">No draw yet.</div>
+          </article>
+          <article class="deck">
+            <p class="eyebrow">CHOICE</p>
+            <div class="draw-row">
+              <label for="choice-values">Options, one per line</label>
+              <textarea id="choice-values" rows="6">red
+green
+blue</textarea>
+            </div>
+            <button class="button full" id="choice-button">Choose item</button>
+            <div class="result" id="choice-result">No choice yet.</div>
           </article>
         </section>
       </section>
@@ -125,9 +161,21 @@
           </article>
           <article class="deck">
             <p class="eyebrow">USAGE</p>
-            <pre><code>from nuclear_random import nuclear_random
+            <pre><code>from nuclear_random import choice, nuclear_random, randint
 
 print(nuclear_random(100))</code></pre>
+          </article>
+          <article class="deck">
+            <p class="eyebrow">CHOICE</p>
+            <pre><code>from nuclear_random import choice
+
+print(choice(["red", "green", "blue"]))</code></pre>
+          </article>
+          <article class="deck">
+            <p class="eyebrow">RANGE</p>
+            <pre><code>from nuclear_random import randint
+
+print(randint(10, 20))</code></pre>
           </article>
         </section>
         <section class="pipeline">
@@ -144,6 +192,6 @@ print(nuclear_random(100))</code></pre>
       </section>
     </main>
 
-    <script src="/app.js?v=3" type="module"></script>
+    <script src="/app.js?v=4" type="module"></script>
   </body>
 </html>

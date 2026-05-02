@@ -88,7 +88,7 @@ a {
 }
 
 .hero.compact {
-  min-height: 420px;
+  min-height: 330px;
 }
 
 .eyebrow,
@@ -125,6 +125,39 @@ h2 {
   color: var(--muted);
   font-size: 16px;
   line-height: 1.75;
+}
+
+.pulse-rail {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 520px;
+  margin-top: 26px;
+}
+
+.pulse-rail span {
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(to top, rgba(77, 255, 172, 0.22), transparent 65%),
+    var(--panel-strong);
+}
+
+.pulse-rail span:nth-child(2) {
+  height: 68px;
+}
+
+.pulse-rail span:nth-child(3) {
+  height: 52px;
+}
+
+.pulse-rail span:nth-child(4) {
+  height: 86px;
+}
+
+.pulse-rail span:nth-child(5) {
+  height: 58px;
 }
 
 .button {
@@ -211,6 +244,32 @@ label,
   padding: 22px 28px 28px;
 }
 
+.lab-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 0 28px 28px;
+}
+
+.lab-strip article {
+  min-height: 118px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+}
+
+.lab-strip strong {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.lab-strip span {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .metric-card {
   min-height: 166px;
   padding: 20px;
@@ -269,9 +328,19 @@ canvas {
   padding: 22px 28px;
 }
 
+.single-column,
+.tool-grid {
+  padding: 22px 28px 28px;
+}
+
 .single-column {
   max-width: 680px;
-  padding: 22px 28px 28px;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .deck {
@@ -298,6 +367,18 @@ input {
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #02090b;
+  color: var(--text);
+  font: inherit;
+}
+
+textarea {
+  width: 100%;
+  min-height: 156px;
+  resize: vertical;
+  padding: 14px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #02090b;
@@ -345,7 +426,9 @@ input {
 
   .hero,
   .analysis-grid,
-  .decks {
+  .decks,
+  .tool-grid,
+  .lab-strip {
     grid-template-columns: 1fr;
   }
 
@@ -375,7 +458,9 @@ input {
   .metrics,
   .decks,
   .analysis-grid,
-  .single-column {
+  .single-column,
+  .tool-grid,
+  .lab-strip {
     padding: 18px;
   }
 
@@ -410,6 +495,20 @@ input {
 
   .metric-card strong {
     font-size: 28px;
+  }
+
+  .pulse-rail {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 18px;
+  }
+
+  .pulse-rail span,
+  .pulse-rail span:nth-child(2),
+  .pulse-rail span:nth-child(3),
+  .pulse-rail span:nth-child(4),
+  .pulse-rail span:nth-child(5) {
+    height: 34px;
   }
 
   .chart-card {

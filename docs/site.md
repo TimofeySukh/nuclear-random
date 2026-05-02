@@ -8,8 +8,8 @@ The interface is split into pages:
 
 - Overview: live service cards
 - Entropy: rolling Geiger click chart and extractor counters
-- Draw: public random-number request form
-- Docs: Python install and entropy path
+- Draw: public random-number and choice request tools
+- Docs: Python install, helper API, and entropy path
 
 ## Runtime
 
