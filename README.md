@@ -1,0 +1,65 @@
+# Nuclear Random
+
+Experimental Python random integers backed by Geiger counter click timing.
+
+```bash
+pip install nuclear-random
+```
+
+```python
+from nuclear_random import nuclear_random
+
+value = nuclear_random(100)
+print(value)  # 0..100 inclusive
+```
+
+## How It Works
+
+The public API consumes entropy bytes collected from an ESP32-C3 connected to a Geiger counter on GPIO 6. For a request like `nuclear_random(100)`, the API reads 7 bits, builds a candidate in `0..127`, and returns it only if it is `<= 100`. Candidates above the requested maximum are rejected and the API reads the next 7 bits.
+
+This rejection-sampling step avoids modulo bias.
+
+## Configuration
+
+By default the client uses:
+
+```text
+https://api.nuclear-random.example.com
+```
+
+Override it while testing:
+
+```bash
+export NUCLEAR_RANDOM_API_URL=http://127.0.0.1:19000
+```
+
+or per call:
+
+```python
+nuclear_random(131, api_url="http://127.0.0.1:19000")
+```
+
+## Server
+
+The server stack is Docker-only and includes:
+
+- FastAPI API
+- Redis entropy byte pool
+- InfluxDB telemetry
+- serial collector for the ESP32-C3
+
+```bash
+cp server/.env.example server/.env
+docker compose --project-directory server up -d redis influxdb api
+docker compose --project-directory server --profile collector up -d collector
+```
+
+See [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md), and [docs/hardware.md](docs/hardware.md).
+
+## Status
+
+This project is alpha-quality. It is suitable for experimentation and public demos, but it has not been cryptographically audited.
+
+## License
+
+MIT

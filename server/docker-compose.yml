@@ -1,0 +1,79 @@
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: nuclear-random-redis
+    restart: unless-stopped
+    command: ["redis-server", "--save", "60", "1", "--appendonly", "yes", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis-data:/data
+    networks:
+      - nuclear-random-net
+
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: nuclear-random-influxdb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${INFLUXDB_HOST_PORT:-19086}:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_INIT_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_INIT_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_INIT_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_INIT_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    networks:
+      - nuclear-random-net
+
+  api:
+    build:
+      context: ..
+      dockerfile: server/api/Dockerfile
+    container_name: nuclear-random-api
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      NUCLEAR_RANDOM_REDIS_URL: redis://redis:6379/0
+      NUCLEAR_RANDOM_REDIS_ENTROPY_KEY: nuclear_random:entropy_bytes
+      NUCLEAR_RANDOM_POOL_LOW_WATERMARK_BYTES: ${POOL_LOW_WATERMARK_BYTES:-1024}
+    ports:
+      - "127.0.0.1:${API_HOST_PORT:-19000}:8000"
+    networks:
+      - nuclear-random-net
+
+  collector:
+    build:
+      context: ..
+      dockerfile: server/collector/Dockerfile
+    container_name: nuclear-random-collector
+    restart: unless-stopped
+    profiles: ["collector"]
+    depends_on:
+      - redis
+      - influxdb
+    devices:
+      - "${GEIGER_SERIAL_PORT:-/dev/ttyACM0}:${GEIGER_SERIAL_PORT:-/dev/ttyACM0}"
+    environment:
+      GEIGER_SERIAL_PORT: ${GEIGER_SERIAL_PORT:-/dev/ttyACM0}
+      GEIGER_SERIAL_BAUD: ${GEIGER_SERIAL_BAUD:-115200}
+      REDIS_URL: redis://redis:6379/0
+      REDIS_ENTROPY_KEY: nuclear_random:entropy_bytes
+      MAX_POOL_BYTES: ${MAX_POOL_BYTES:-1048576}
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_INIT_ADMIN_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_INIT_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_INIT_BUCKET}
+    networks:
+      - nuclear-random-net
+
+networks:
+  nuclear-random-net:
+    name: nuclear-random-net
+
+volumes:
+  redis-data:
+  influxdb-data:
+
