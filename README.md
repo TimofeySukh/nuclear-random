@@ -54,6 +54,7 @@ nuclear_random(131, api_url="http://127.0.0.1:19000")
 The server stack is Docker-only and includes:
 
 - FastAPI API
+- static public website
 - Redis extracted entropy byte pool
 - InfluxDB telemetry
 - Wi-Fi ingest endpoint for the ESP32-C3
@@ -63,7 +64,7 @@ The server stack is Docker-only and includes:
 
 ```bash
 cp server/.env.example server/.env
-docker compose -p nuclear-random --project-directory server up -d redis influxdb api
+docker compose -p nuclear-random --project-directory server up -d redis influxdb api site
 docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
@@ -81,6 +82,8 @@ GET  /v1/random/int?max=100
 GET  /v1/random/bytes?length=16
 POST /v1/entropy/click
 ```
+
+The public website is intended for `https://random.datanode.live`.
 
 ## Status
 

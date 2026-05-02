@@ -7,10 +7,11 @@ The server must be managed through Docker. Do not install Redis, InfluxDB, or th
 ```bash
 cp server/.env.example server/.env
 docker compose -p nuclear-random --project-directory server up -d redis influxdb api
+docker compose -p nuclear-random --project-directory server up -d site
 docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
-The API listens on `127.0.0.1:19000` by default.
+The API listens on `127.0.0.1:19000` by default. The public website listens on `127.0.0.1:19100`.
 
 ## Home Server Layout
 
@@ -36,17 +37,29 @@ Chosen integration for the home server:
 ```yaml
   - hostname: nuclear-api.datanode.live
     service: http://127.0.0.1:19000
+  - hostname: random.datanode.live
+    service: http://127.0.0.1:19100
 ```
 
 4. Reload or restart only the existing Cloudflare tunnel service after confirming the hostname.
 
 The current deployment target is `nuclear-api.datanode.live`.
+The current website target is `random.datanode.live`.
 
 Cloudflare DNS must contain:
 
 ```text
 Type: CNAME
 Name: nuclear-api
+Target: a58c8086-b534-454d-99d0-bf8006633e1b.cfargotunnel.com
+Proxy: enabled
+```
+
+The website uses the same tunnel target:
+
+```text
+Type: CNAME
+Name: random
 Target: a58c8086-b534-454d-99d0-bf8006633e1b.cfargotunnel.com
 Proxy: enabled
 ```
@@ -66,9 +79,10 @@ The compose file uses conservative defaults:
 - Entropy pool: `1 MiB`
 - InfluxDB container limit: `512 MiB`
 - API container limit: `192 MiB`
+- Site container limit: `64 MiB`
 - Collector container limit: `128 MiB`
 
-The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the heaviest service, so check `docker stats` after startup.
+The full stack with the diagnostic collector is capped at `992 MiB` before Docker overhead. InfluxDB is the heaviest service, so check `docker stats` after startup.
 
 The public random endpoint is rate limited with Redis. The default is `120` requests per minute per client identity and can be changed with:
 

@@ -55,6 +55,20 @@ services:
     networks:
       - nuclear-random-net
 
+  site:
+    build:
+      context: ..
+      dockerfile: server/site/Dockerfile
+    container_name: nuclear-random-site
+    restart: unless-stopped
+    mem_limit: 64m
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:${SITE_HOST_PORT:-19100}:80"
+    networks:
+      - nuclear-random-net
+
   collector:
     build:
       context: ..
