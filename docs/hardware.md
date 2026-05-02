@@ -15,6 +15,13 @@ Firmware lives in:
 firmware/esp32c3_geiger_entropy/esp32c3_geiger_entropy.ino
 ```
 
+Build and upload it with USB CDC enabled:
+
+```bash
+arduino-cli compile --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc firmware/esp32c3_geiger_entropy
+arduino-cli upload -p /dev/ttyACM0 --fqbn esp32:esp32:esp32c3:CDCOnBoot=cdc firmware/esp32c3_geiger_entropy
+```
+
 The firmware emits JSON lines:
 
 ```json
@@ -22,4 +29,3 @@ The firmware emits JSON lines:
 ```
 
 The collector records the host timestamp at read time and uses the fractional nanoseconds from that timestamp as the main timing input.
-

@@ -56,6 +56,8 @@ docker compose --project-directory server --profile collector up -d collector
 
 See [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md), and [docs/hardware.md](docs/hardware.md).
 
+The ESP32-C3 firmware must be built with `CDCOnBoot=cdc` so the USB serial JSON stream is visible on `/dev/ttyACM0`.
+
 ## Status
 
 This project is alpha-quality. It is suitable for experimentation and public demos, but it has not been cryptographically audited.
