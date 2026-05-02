@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Nuclear Random</title>
-    <link rel="stylesheet" href="/styles.css?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <main class="shell">
@@ -76,7 +76,7 @@
           <article>
             <p class="label">PACKAGE</p>
             <strong>nuclear-random</strong>
-            <span>Number, randint, choice, bytes, status.</span>
+            <span>nuclear_random, nuclear_randint, nuclear_choice, bytes, status.</span>
           </article>
         </section>
       </section>
@@ -115,6 +115,28 @@
               <span>Von Neumann pairs rejected as 00 or 11.</span>
             </article>
           </aside>
+        </section>
+        <section class="chart-row">
+          <article class="chart-card compact-chart">
+            <div class="chart-title">
+              <div>
+                <p class="eyebrow">CLICK RATE</p>
+                <h2>Bucket activity</h2>
+              </div>
+              <span>Clicks per bucket</span>
+            </div>
+            <canvas id="rate-chart" width="700" height="280"></canvas>
+          </article>
+          <article class="chart-card compact-chart">
+            <div class="chart-title">
+              <div>
+                <p class="eyebrow">EXTRACTOR</p>
+                <h2>Raw to clean bits</h2>
+              </div>
+              <span>Live counters</span>
+            </div>
+            <canvas id="extractor-chart" width="700" height="280"></canvas>
+          </article>
         </section>
       </section>
 
@@ -161,21 +183,21 @@ blue</textarea>
           </article>
           <article class="deck">
             <p class="eyebrow">USAGE</p>
-            <pre><code>from nuclear_random import choice, nuclear_random, randint
+            <pre><code>from nuclear_random import nuclear_randint, nuclear_random
 
 print(nuclear_random(100))</code></pre>
           </article>
           <article class="deck">
             <p class="eyebrow">CHOICE</p>
-            <pre><code>from nuclear_random import choice
+            <pre><code>from nuclear_random import nuclear_choice
 
-print(choice(["red", "green", "blue"]))</code></pre>
+print(nuclear_choice(["red", "green", "blue"]))</code></pre>
           </article>
           <article class="deck">
             <p class="eyebrow">RANGE</p>
-            <pre><code>from nuclear_random import randint
+            <pre><code>from nuclear_random import nuclear_randint
 
-print(randint(10, 20))</code></pre>
+print(nuclear_randint(10, 20))</code></pre>
           </article>
         </section>
         <section class="pipeline">
@@ -192,6 +214,6 @@ print(randint(10, 20))</code></pre>
       </section>
     </main>
 
-    <script src="/app.js?v=4" type="module"></script>
+    <script src="/app.js?v=5" type="module"></script>
   </body>
 </html>

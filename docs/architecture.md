@@ -45,7 +45,7 @@ This avoids modulo bias.
 
 The same algorithm is used for any non-negative maximum value. For example, `nuclear_random(10_000)` reads 14-bit candidates and rejects values greater than `10_000`.
 
-The Python client uses the same range algorithm for helpers. `randint(min_value, max_value)` draws an offset in `0..max_value-min_value`, and `choice(items)` draws an index in `0..len(items)-1`.
+The Python client uses the same range algorithm for helpers. `nuclear_randint(min_value, max_value)` draws an offset in `0..max_value-min_value`, and `nuclear_choice(items)` draws an index in `0..len(items)-1`.
 
 If the Redis pool is empty, the API waits up to `RANDOM_WAIT_SECONDS` for a fresh extracted byte before returning `503`.
 

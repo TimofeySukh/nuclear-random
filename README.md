@@ -7,13 +7,19 @@ pip install nuclear-random
 ```
 
 ```python
-from nuclear_random import choice, nuclear_random, randint, random_bytes, service_status
+from nuclear_random import (
+    nuclear_choice,
+    nuclear_randint,
+    nuclear_random,
+    nuclear_random_bytes,
+    service_status,
+)
 
 print(nuclear_random(100))      # 0..100 inclusive
 print(nuclear_random(10_000))   # 0..10000 inclusive
-print(randint(10, 20))          # 10..20 inclusive
-print(random_bytes(16).hex())   # 16 extracted bytes from the entropy pool
-print(choice(["red", "green", "blue"]))
+print(nuclear_randint(10, 20))  # 10..20 inclusive
+print(nuclear_random_bytes(16).hex())
+print(nuclear_choice(["red", "green", "blue"]))
 
 status = service_status()
 print(status.pool_size_bytes, status.estimated_cpm)
@@ -32,14 +38,22 @@ This rejection-sampling step avoids modulo bias.
 ## Client API
 
 ```python
-from nuclear_random import choice, nuclear_random, randint, random_bytes, service_status
+from nuclear_random import (
+    nuclear_choice,
+    nuclear_randint,
+    nuclear_random,
+    nuclear_random_bytes,
+    service_status,
+)
 ```
 
 - `nuclear_random(max_value)` returns an integer in `0..max_value`.
-- `randint(min_value, max_value)` returns an integer in `min_value..max_value`.
-- `choice(items)` returns one item from a non-empty sequence by drawing a QRNG-backed index.
-- `random_bytes(length)` returns extracted bytes from the entropy pool. This is slow on the public service.
+- `nuclear_randint(min_value, max_value)` returns an integer in `min_value..max_value`.
+- `nuclear_choice(items)` returns one item from a non-empty sequence by drawing a QRNG-backed index.
+- `nuclear_random_bytes(length)` returns extracted bytes from the entropy pool. This is slow on the public service.
 - `service_status()` returns pool size, click rate, and extractor counters.
+
+The shorter names `randint`, `choice`, and `random_bytes` remain as backward-compatible aliases.
 
 ## Configuration
 

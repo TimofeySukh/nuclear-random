@@ -132,7 +132,7 @@ class NuclearRandomClient(Generic[T]):
 
         return self.random_response(max_value).value
 
-    def randint(self, min_value: int, max_value: int) -> int:
+    def nuclear_randint(self, min_value: int, max_value: int) -> int:
         """Return an unbiased random integer in the inclusive range min_value..max_value."""
 
         if not isinstance(min_value, int) or not isinstance(max_value, int):
@@ -140,6 +140,11 @@ class NuclearRandomClient(Generic[T]):
         if min_value > max_value:
             raise ValueError("min_value must be less than or equal to max_value.")
         return min_value + self.nuclear_random(max_value - min_value)
+
+    def randint(self, min_value: int, max_value: int) -> int:
+        """Backward-compatible alias for nuclear_randint."""
+
+        return self.nuclear_randint(min_value, max_value)
 
     def random_bytes_response(self, length: int) -> BytesResponse:
         _validate_length(length)
@@ -152,17 +157,27 @@ class NuclearRandomClient(Generic[T]):
             raise NuclearRandomError("The random service returned the wrong number of bytes.")
         return result
 
-    def random_bytes(self, length: int) -> bytes:
+    def nuclear_random_bytes(self, length: int) -> bytes:
         """Return random bytes from the entropy pool."""
 
         return self.random_bytes_response(length).data
 
-    def choice(self, items: Sequence[T]) -> T:
+    def random_bytes(self, length: int) -> bytes:
+        """Backward-compatible alias for nuclear_random_bytes."""
+
+        return self.nuclear_random_bytes(length)
+
+    def nuclear_choice(self, items: Sequence[T]) -> T:
         """Return one item from a non-empty sequence."""
 
         if not items:
             raise ValueError("items must not be empty.")
         return items[self.nuclear_random(len(items) - 1)]
+
+    def choice(self, items: Sequence[T]) -> T:
+        """Backward-compatible alias for nuclear_choice."""
+
+        return self.nuclear_choice(items)
 
     def service_status(self) -> ServiceStatus:
         """Return live service status and entropy-pool metrics."""
@@ -195,7 +210,7 @@ def nuclear_random(max_value: int, *, api_url: str | None = None, timeout: float
         return client.nuclear_random(max_value)
 
 
-def randint(
+def nuclear_randint(
     min_value: int,
     max_value: int,
     *,
@@ -205,17 +220,35 @@ def randint(
     """Return an unbiased random integer in the inclusive range min_value..max_value."""
 
     with NuclearRandomClient(api_url=api_url, timeout=timeout) as client:
-        return client.randint(min_value, max_value)
+        return client.nuclear_randint(min_value, max_value)
 
 
-def random_bytes(length: int, *, api_url: str | None = None, timeout: float = DEFAULT_TIMEOUT) -> bytes:
+def randint(
+    min_value: int,
+    max_value: int,
+    *,
+    api_url: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT,
+) -> int:
+    """Backward-compatible alias for nuclear_randint."""
+
+    return nuclear_randint(min_value, max_value, api_url=api_url, timeout=timeout)
+
+
+def nuclear_random_bytes(length: int, *, api_url: str | None = None, timeout: float = DEFAULT_TIMEOUT) -> bytes:
     """Return random bytes from the entropy pool."""
 
     with NuclearRandomClient(api_url=api_url, timeout=timeout) as client:
-        return client.random_bytes(length)
+        return client.nuclear_random_bytes(length)
 
 
-def choice(
+def random_bytes(length: int, *, api_url: str | None = None, timeout: float = DEFAULT_TIMEOUT) -> bytes:
+    """Backward-compatible alias for nuclear_random_bytes."""
+
+    return nuclear_random_bytes(length, api_url=api_url, timeout=timeout)
+
+
+def nuclear_choice(
     items: Sequence[T],
     *,
     api_url: str | None = None,
@@ -224,7 +257,18 @@ def choice(
     """Return one item from a non-empty sequence."""
 
     with NuclearRandomClient[T](api_url=api_url, timeout=timeout) as client:
-        return client.choice(items)
+        return client.nuclear_choice(items)
+
+
+def choice(
+    items: Sequence[T],
+    *,
+    api_url: str | None = None,
+    timeout: float = DEFAULT_TIMEOUT,
+) -> T:
+    """Backward-compatible alias for nuclear_choice."""
+
+    return nuclear_choice(items, api_url=api_url, timeout=timeout)
 
 
 def service_status(

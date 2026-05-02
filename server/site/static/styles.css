@@ -298,9 +298,20 @@ label,
   padding: 22px 28px 28px;
 }
 
+.chart-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0 28px 28px;
+}
+
 .chart-card {
   min-height: 470px;
   padding: 20px;
+}
+
+.compact-chart {
+  min-height: 330px;
 }
 
 .chart-title {
@@ -314,6 +325,10 @@ canvas {
   display: block;
   width: 100%;
   height: 360px;
+}
+
+.compact-chart canvas {
+  height: 220px;
 }
 
 .side-stack {
@@ -426,6 +441,7 @@ textarea {
 
   .hero,
   .analysis-grid,
+  .chart-row,
   .decks,
   .tool-grid,
   .lab-strip {
@@ -458,6 +474,7 @@ textarea {
   .metrics,
   .decks,
   .analysis-grid,
+  .chart-row,
   .single-column,
   .tool-grid,
   .lab-strip {

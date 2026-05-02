@@ -5,6 +5,7 @@ The package name is `nuclear-random`.
 Current release line:
 
 ```text
+0.2.3: adds nuclear-prefixed helper names and keeps old aliases
 0.2.2: longer default client and API wait windows for the slow physical pool
 0.2.1: waits briefly for fresh entropy when the pool is empty
 0.2.x: radioactive decay timing with Von Neumann debiasing

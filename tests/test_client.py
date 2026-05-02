@@ -8,7 +8,10 @@ from nuclear_random import (
     NuclearRandomClient,
     NuclearRandomError,
     choice,
+    nuclear_choice,
+    nuclear_randint,
     nuclear_random,
+    nuclear_random_bytes,
     randint,
     random_bytes,
     service_status,
@@ -38,7 +41,16 @@ def test_nuclear_random_rejects_negative_max() -> None:
 
 
 @respx.mock
-def test_randint_offsets_service_value() -> None:
+def test_nuclear_randint_offsets_service_value() -> None:
+    respx.get("https://api.example.test/v1/random/int").mock(
+        return_value=httpx.Response(200, json={"value": 4, "bits_used": 4, "rejected": 0})
+    )
+
+    assert nuclear_randint(10, 20, api_url="https://api.example.test") == 14
+
+
+@respx.mock
+def test_randint_alias_offsets_service_value() -> None:
     respx.get("https://api.example.test/v1/random/int").mock(
         return_value=httpx.Response(200, json={"value": 4, "bits_used": 4, "rejected": 0})
     )
@@ -48,7 +60,7 @@ def test_randint_offsets_service_value() -> None:
 
 def test_randint_rejects_invalid_range() -> None:
     with pytest.raises(ValueError):
-        randint(20, 10, api_url="https://api.example.test")
+        nuclear_randint(20, 10, api_url="https://api.example.test")
 
 
 @respx.mock
@@ -60,8 +72,20 @@ def test_random_bytes_returns_bytes() -> None:
         )
     )
 
-    assert random_bytes(3, api_url="https://api.example.test") == b"\x00\x01\xff"
+    assert nuclear_random_bytes(3, api_url="https://api.example.test") == b"\x00\x01\xff"
     assert route.calls[0].request.url.params["length"] == "3"
+
+
+@respx.mock
+def test_random_bytes_alias_returns_bytes() -> None:
+    respx.get("https://api.example.test/v1/random/bytes").mock(
+        return_value=httpx.Response(
+            200,
+            json={"hex": "0001ff", "length": 3, "bits_used": 24, "pool_size_bytes": 128},
+        )
+    )
+
+    assert random_bytes(3, api_url="https://api.example.test") == b"\x00\x01\xff"
 
 
 def test_random_bytes_short_circuits_zero() -> None:
@@ -74,12 +98,21 @@ def test_choice_uses_random_index() -> None:
         return_value=httpx.Response(200, json={"value": 1, "bits_used": 2, "rejected": 0})
     )
 
+    assert nuclear_choice(["alpha", "beta", "gamma"], api_url="https://api.example.test") == "beta"
+
+
+@respx.mock
+def test_choice_alias_uses_random_index() -> None:
+    respx.get("https://api.example.test/v1/random/int").mock(
+        return_value=httpx.Response(200, json={"value": 1, "bits_used": 2, "rejected": 0})
+    )
+
     assert choice(["alpha", "beta", "gamma"], api_url="https://api.example.test") == "beta"
 
 
 def test_choice_rejects_empty_sequence() -> None:
     with pytest.raises(ValueError):
-        choice([], api_url="https://api.example.test")
+        nuclear_choice([], api_url="https://api.example.test")
 
 
 @respx.mock
