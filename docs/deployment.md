@@ -57,7 +57,13 @@ The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the he
 
 ## Collector Placement
 
-The collector must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
+The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:
+
+```text
+https://random.datanode.live/v1/entropy/click
+```
+
+The legacy USB collector is kept as a fallback. It must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
 
 ```bash
 docker compose -p nuclear-random --project-directory server --profile collector up -d collector

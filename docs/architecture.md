@@ -5,9 +5,9 @@ Nuclear Random turns Geiger counter click timing into a small public random-numb
 ## Data Flow
 
 1. An ESP32-C3 listens for falling edges from the Geiger counter on GPIO 6.
-2. On each accepted pulse, the firmware writes a JSON line over USB serial.
-3. The collector records the host timestamp at the moment the line is read. It takes the fractional nanoseconds of that timestamp as eight bytes, mixes in the click sequence and device-provided delta, and hashes the payload with BLAKE2s.
-4. The collector pushes the resulting bytes into Redis and writes click telemetry to InfluxDB.
+2. On each accepted pulse, the firmware sends a JSON event over Wi-Fi to `/v1/entropy/click`.
+3. The API records the receive timestamp. It takes the fractional nanoseconds of that timestamp as eight bytes, mixes in the ESP32 sequence number, ESP32 `micros()` value, and pulse delta, then hashes the payload with BLAKE2s.
+4. The API pushes the resulting bytes into Redis and writes click telemetry to InfluxDB.
 5. The API pops entropy bytes from Redis and serves unbiased integers with rejection sampling.
 6. The Python package calls the public API and returns an integer to the user.
 
@@ -33,10 +33,10 @@ InfluxDB stores operational telemetry, not the entropy source of truth. The `gei
 
 - source
 - sequence
+- device time
 - device-provided `dt_us`
 - Redis pool size
 
 ## Security Notes
 
 This is an experimental entropy service. The collector hashes timing data before inserting bytes into Redis, but the project has not had a cryptographic audit. Do not use it as the only entropy source for high-stakes cryptographic key generation until the full pipeline has been reviewed and tested.
-

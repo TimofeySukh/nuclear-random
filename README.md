@@ -46,7 +46,8 @@ The server stack is Docker-only and includes:
 - FastAPI API
 - Redis entropy byte pool
 - InfluxDB telemetry
-- serial collector for the ESP32-C3
+- Wi-Fi ingest endpoint for the ESP32-C3
+- serial collector fallback for USB deployments
 
 ```bash
 cp server/.env.example server/.env
@@ -56,7 +57,7 @@ docker compose -p nuclear-random --project-directory server --profile collector 
 
 See [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md), and [docs/hardware.md](docs/hardware.md).
 
-The ESP32-C3 firmware must be built with `CDCOnBoot=cdc` so the USB serial JSON stream is visible on `/dev/ttyACM0`. The initial public deployment target is `https://random.datanode.live`.
+The ESP32-C3 firmware posts click events to `https://random.datanode.live/v1/entropy/click`. It should still be built with `CDCOnBoot=cdc` so the USB serial debug stream is visible on `/dev/ttyACM0`.
 
 ## Status
 
