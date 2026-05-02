@@ -34,13 +34,13 @@ Chosen integration for the home server:
 3. Add one Cloudflare ingress entry before the final `http_status:404` rule:
 
 ```yaml
-  - hostname: random.datanode.live
+  - hostname: nuclear-api.datanode.live
     service: http://127.0.0.1:19000
 ```
 
 4. Reload or restart only the existing Cloudflare tunnel service after confirming the hostname.
 
-The current deployment target is `random.datanode.live`.
+The current deployment target is `nuclear-api.datanode.live`.
 
 Cloudflare DNS must contain:
 
@@ -75,7 +75,7 @@ The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the he
 The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:
 
 ```text
-https://random.datanode.live/v1/entropy/click
+https://nuclear-api.datanode.live/v1/entropy/click
 ```
 
 The firmware `INGEST_TOKEN` must match `INGEST_TOKEN` in `/home/server/nuclear_random/server/.env`.

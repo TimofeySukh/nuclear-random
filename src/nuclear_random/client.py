@@ -6,7 +6,7 @@ from typing import Any
 
 import httpx
 
-DEFAULT_API_URL = "https://api.nuclear-random.example.com"
+DEFAULT_API_URL = "https://nuclear-api.datanode.live"
 
 
 class NuclearRandomError(RuntimeError):

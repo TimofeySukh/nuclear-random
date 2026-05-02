@@ -24,7 +24,7 @@ This rejection-sampling step avoids modulo bias.
 By default the client uses:
 
 ```text
-https://api.nuclear-random.example.com
+https://nuclear-api.datanode.live
 ```
 
 Override it while testing:
@@ -57,7 +57,7 @@ docker compose -p nuclear-random --project-directory server --profile collector 
 
 See [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md), and [docs/hardware.md](docs/hardware.md).
 
-The ESP32-C3 firmware posts click events to `https://random.datanode.live/v1/entropy/click`. Its `INGEST_TOKEN` must match the server `INGEST_TOKEN` in `/home/server/nuclear_random/server/.env`. It should still be built with `CDCOnBoot=cdc` so the USB serial debug stream is visible on `/dev/ttyACM0`.
+The ESP32-C3 firmware posts click events to `https://nuclear-api.datanode.live/v1/entropy/click`. Its `INGEST_TOKEN` must match the server `INGEST_TOKEN` in `/home/server/nuclear_random/server/.env`. It should still be built with `CDCOnBoot=cdc` so the USB serial debug stream is visible on `/dev/ttyACM0`.
 
 ## Status
 
