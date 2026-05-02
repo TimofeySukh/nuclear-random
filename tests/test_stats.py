@@ -89,6 +89,24 @@ class FakeRedis:
     def zcount(self, key: str, minimum: int, maximum: int) -> int:
         return sum(1 for score in self.sorted_sets.get(key, {}).values() if minimum <= score <= maximum)
 
+    def zrangebyscore(
+        self,
+        key: str,
+        minimum: int,
+        maximum: int,
+        *,
+        withscores: bool = False,
+    ) -> list[tuple[str, int]] | list[str]:
+        members = [
+            (member, score)
+            for member, score in self.sorted_sets.get(key, {}).items()
+            if minimum <= score <= maximum
+        ]
+        members.sort(key=lambda item: item[1])
+        if withscores:
+            return members
+        return [member for member, _ in members]
+
     def expire(self, key: str, seconds: int) -> bool:
         return True
 
@@ -119,3 +137,15 @@ def test_stats_store_records_click_and_random_draw() -> None:
     assert status.total_rejections == 1
     assert status.last_click_source == "test"
     assert status.last_click_dt_us == 123
+
+
+def test_click_timeline_returns_cumulative_buckets() -> None:
+    client = FakeRedis()
+    store = StatsStore(client)
+    key = "nuclear_random:v2:click_times"
+    client.zadd(key, {"a": 1000, "b": 2000, "c": 3000})
+
+    points = store.click_timeline(bucket_count=3)
+
+    assert len(points) == 3
+    assert points[-1].clicks >= points[0].clicks

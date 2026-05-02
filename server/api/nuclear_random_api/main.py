@@ -98,6 +98,18 @@ def service_status() -> dict[str, int | float | str | None]:
     }
 
 
+@app.get("/v1/clicks/timeline")
+def click_timeline(buckets: int = Query(default=60, ge=1, le=240)) -> dict[str, int | list[dict[str, int]]]:
+    points = stats_store.click_timeline(bucket_count=buckets)
+    return {
+        "window_seconds": settings.click_timeline_window_seconds,
+        "points": [
+            {"elapsed_seconds": point.elapsed_seconds, "clicks": point.clicks}
+            for point in points
+        ],
+    }
+
+
 @app.post("/v1/entropy/click")
 def ingest_click(
     request: ClickIngestRequest,

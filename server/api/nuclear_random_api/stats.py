@@ -26,6 +26,12 @@ class ServiceStatus:
     last_click_dt_us: int | None
 
 
+@dataclass(frozen=True)
+class TimelinePoint:
+    elapsed_seconds: int
+    clicks: int
+
+
 class StatsStore:
     def __init__(self, client: redis.Redis) -> None:
         self._client = client
@@ -45,7 +51,7 @@ class StatsStore:
     ) -> None:
         timestamp_ms = timestamp_ns // 1_000_000
         member = f"{timestamp_ns}:{source}"
-        min_score = timestamp_ms - settings.status_click_window_seconds * 1000
+        min_score = timestamp_ms - settings.click_timeline_window_seconds * 1000
 
         pipe = self._client.pipeline()
         pipe.hincrby(self._stats_key, "total_clicks", 1)
@@ -63,7 +69,7 @@ class StatsStore:
         )
         pipe.zadd(self._clicks_key, {member: timestamp_ms})
         pipe.zremrangebyscore(self._clicks_key, 0, min_score)
-        pipe.expire(self._clicks_key, settings.status_click_window_seconds * 2)
+        pipe.expire(self._clicks_key, settings.click_timeline_window_seconds * 2)
         pipe.execute()
 
     def record_random_draw(self, *, bits_used: int, rejected: int) -> None:
@@ -104,6 +110,27 @@ class StatsStore:
             last_click_source=stats.get("last_click_source"),
             last_click_dt_us=_int_or_none(stats.get("last_click_dt_us")),
         )
+
+    def click_timeline(self, *, bucket_count: int = 60) -> list[TimelinePoint]:
+        now_ms = time.time_ns() // 1_000_000
+        window_ms = settings.click_timeline_window_seconds * 1000
+        start_ms = now_ms - window_ms
+        bucket_count = max(1, min(bucket_count, 240))
+        bucket_width_ms = max(1, window_ms // bucket_count)
+
+        raw_points = self._client.zrangebyscore(self._clicks_key, start_ms, now_ms, withscores=True)
+        buckets = [0 for _ in range(bucket_count)]
+        for _, score in raw_points:
+            index = min(bucket_count - 1, max(0, int((int(score) - start_ms) // bucket_width_ms)))
+            buckets[index] += 1
+
+        points: list[TimelinePoint] = []
+        total = 0
+        for index, count in enumerate(buckets):
+            total += count
+            elapsed_seconds = round(((index + 1) * bucket_width_ms) / 1000)
+            points.append(TimelinePoint(elapsed_seconds=elapsed_seconds, clicks=total))
+        return points
 
 
 def make_stats_store() -> StatsStore:

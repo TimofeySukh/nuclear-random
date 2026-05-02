@@ -14,6 +14,8 @@ Nuclear Random turns Geiger counter decay timing into a small public random-numb
 
 The API also stores lightweight service stats in Redis for `/v1/status`, including pool size, total clicks, raw bits, extracted bits, discarded pairs, random request counts, and estimated CPM.
 
+The website chart uses `/v1/clicks/timeline`, which reads recent click timestamps from Redis and returns cumulative buckets for the rolling timeline window.
+
 ## Extraction
 
 Each click provides `dt_us`, the number of microseconds since the previous click.

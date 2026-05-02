@@ -104,6 +104,12 @@ When the pool is empty, random endpoints wait for fresh entropy before returning
 RANDOM_WAIT_SECONDS=20
 ```
 
+The website click chart window is controlled with:
+
+```text
+CLICK_TIMELINE_WINDOW_SECONDS=900
+```
+
 ## Collector Placement
 
 The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:

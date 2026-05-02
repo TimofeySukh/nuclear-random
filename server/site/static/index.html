@@ -8,83 +8,139 @@
   </head>
   <body>
     <main class="shell">
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">NUCLEAR RANDOM</p>
-          <h1>Geiger QRNG entropy deck.</h1>
-          <p class="lead">
-            Live radioactive decay timing from an ESP32-C3 node, cleaned with a Von Neumann
-            extractor and served as unbiased Python random integers.
-          </p>
-          <div class="actions">
-            <a class="button" href="https://pypi.org/project/nuclear-random/">PyPI package</a>
-            <a class="button subtle" href="https://github.com/TimofeySukh/nuclear-random">GitHub</a>
+      <nav class="nav" aria-label="Site navigation">
+        <a href="#overview">Overview</a>
+        <a href="#entropy">Entropy</a>
+        <a href="#draw">Draw</a>
+        <a href="#docs">Docs</a>
+      </nav>
+
+      <section class="page active" id="overview-page">
+        <section class="hero compact">
+          <div>
+            <p class="eyebrow">NUCLEAR RANDOM</p>
+            <h1>Geiger QRNG station.</h1>
+            <p class="lead">
+              A public Python random service backed by live radioactive decay timing,
+              conservative bit extraction, and rejection sampling.
+            </p>
           </div>
-        </div>
+          <aside class="status-panel">
+            <div class="pill" id="health-pill"><span></span> Connecting</div>
+            <p class="label">LATEST UPDATE</p>
+            <p class="time" id="latest-update">--</p>
+            <p class="muted" id="status-note">Waiting for live QRNG telemetry.</p>
+          </aside>
+        </section>
 
-        <aside class="status-panel" aria-label="Live service status">
-          <div class="pill" id="health-pill"><span></span> Connecting</div>
-          <p class="label">LATEST UPDATE</p>
-          <p class="time" id="latest-update">--</p>
-          <p class="muted" id="status-note">Waiting for live QRNG telemetry.</p>
-        </aside>
+        <section class="metrics">
+          <article class="metric-card">
+            <p class="label">POOL</p>
+            <strong id="pool-bits">-- bits</strong>
+            <span>Extracted bits waiting in Redis.</span>
+          </article>
+          <article class="metric-card">
+            <p class="label">CLICKS</p>
+            <strong id="clicks">--</strong>
+            <span>Accepted Geiger pulses from GPIO 6.</span>
+          </article>
+          <article class="metric-card">
+            <p class="label">EXTRACTED</p>
+            <strong id="extracted-bits">-- bits</strong>
+            <span>Cleaned output after debiasing.</span>
+          </article>
+          <article class="metric-card">
+            <p class="label">RATE</p>
+            <strong id="cpm">-- CPM</strong>
+            <span>Recent click rate from the ESP32 node.</span>
+          </article>
+        </section>
       </section>
 
-      <section class="metrics" aria-label="Entropy metrics">
-        <article class="metric-card">
-          <p class="label">POOL</p>
-          <strong id="pool-bits">-- bits</strong>
-          <span>Extracted bits waiting in Redis.</span>
-        </article>
-        <article class="metric-card">
-          <p class="label">CLICKS</p>
-          <strong id="clicks">--</strong>
-          <span>Accepted Geiger pulses from GPIO 6.</span>
-        </article>
-        <article class="metric-card">
-          <p class="label">EXTRACTED</p>
-          <strong id="extracted-bits">-- bits</strong>
-          <span>Cleaned output after debiasing.</span>
-        </article>
-        <article class="metric-card">
-          <p class="label">RATE</p>
-          <strong id="cpm">-- CPM</strong>
-          <span>Recent click rate from the ESP32 node.</span>
-        </article>
+      <section class="page" id="entropy-page">
+        <section class="page-head">
+          <p class="eyebrow">ENTROPY VIEW</p>
+          <h1>Click accumulation chart.</h1>
+          <p class="lead">
+            X axis is elapsed time inside the rolling window. Y axis is the cumulative Geiger
+            click count, so the trace should drift upward while the ESP32 keeps reporting.
+          </p>
+        </section>
+
+        <section class="analysis-grid">
+          <article class="chart-card">
+            <div class="chart-title">
+              <div>
+                <p class="eyebrow">MAIN TREND</p>
+                <h2>Rolling click envelope</h2>
+              </div>
+              <span id="timeline-window">--</span>
+            </div>
+            <canvas id="click-chart" width="1200" height="460"></canvas>
+          </article>
+
+          <aside class="side-stack">
+            <article class="metric-card">
+              <p class="label">RAW BITS</p>
+              <strong id="raw-bits">--</strong>
+              <span>Low timing bits sampled from dt_us.</span>
+            </article>
+            <article class="metric-card">
+              <p class="label">DISCARDED</p>
+              <strong id="discarded-pairs">--</strong>
+              <span>Von Neumann pairs rejected as 00 or 11.</span>
+            </article>
+          </aside>
+        </section>
       </section>
 
-      <section class="decks">
-        <article class="deck">
+      <section class="page" id="draw-page">
+        <section class="page-head">
+          <p class="eyebrow">LIVE DRAW</p>
+          <h1>Pull one number.</h1>
+          <p class="lead">This consumes real extracted bits from the same public entropy pool.</p>
+        </section>
+        <section class="single-column">
+          <article class="deck">
+            <div class="draw-row">
+              <label for="max-value">Max value</label>
+              <input id="max-value" type="number" min="0" max="1000000000000" value="10" />
+            </div>
+            <button class="button full" id="draw-button">Draw number</button>
+            <div class="result" id="draw-result">No draw yet.</div>
+          </article>
+        </section>
+      </section>
+
+      <section class="page" id="docs-page">
+        <section class="page-head">
           <p class="eyebrow">PYTHON CLIENT</p>
-          <h2>Install and request a number.</h2>
-          <pre><code>pip install nuclear-random</code></pre>
-          <pre><code>from nuclear_random import nuclear_random
+          <h1>Install the package.</h1>
+          <p class="lead">The package calls the public API and returns unbiased integers.</p>
+        </section>
+        <section class="decks">
+          <article class="deck">
+            <p class="eyebrow">INSTALL</p>
+            <pre><code>pip install nuclear-random</code></pre>
+          </article>
+          <article class="deck">
+            <p class="eyebrow">USAGE</p>
+            <pre><code>from nuclear_random import nuclear_random
 
 print(nuclear_random(100))</code></pre>
-        </article>
-
-        <article class="deck">
-          <p class="eyebrow">LIVE DRAW</p>
-          <h2>Pull from the public entropy pool.</h2>
-          <div class="draw-row">
-            <label for="max-value">Max value</label>
-            <input id="max-value" type="number" min="0" max="1000000000000" value="10" />
+          </article>
+        </section>
+        <section class="pipeline">
+          <p class="eyebrow">ENTROPY PATH</p>
+          <div class="steps">
+            <span>Geiger click</span>
+            <span>dt_us timing</span>
+            <span>2 raw bits</span>
+            <span>Von Neumann extractor</span>
+            <span>Redis pool</span>
+            <span>Rejection sampling</span>
           </div>
-          <button class="button full" id="draw-button">Draw number</button>
-          <div class="result" id="draw-result">No draw yet.</div>
-        </article>
-      </section>
-
-      <section class="pipeline">
-        <p class="eyebrow">ENTROPY PATH</p>
-        <div class="steps">
-          <span>Geiger click</span>
-          <span>dt_us timing</span>
-          <span>2 raw bits</span>
-          <span>Von Neumann extractor</span>
-          <span>Redis pool</span>
-          <span>Rejection sampling</span>
-        </div>
+        </section>
       </section>
     </main>
 

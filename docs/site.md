@@ -4,6 +4,13 @@ The public website runs at `https://random.datanode.live`.
 
 It is a static site served by a small Nginx container. The same container proxies browser API calls from `/api/` to the internal FastAPI service, so the browser does not need cross-origin access to `nuclear-api.datanode.live`.
 
+The interface is split into pages:
+
+- Overview: live service cards
+- Entropy: rolling Geiger click chart and extractor counters
+- Draw: public random-number request form
+- Docs: Python install and entropy path
+
 ## Runtime
 
 ```bash

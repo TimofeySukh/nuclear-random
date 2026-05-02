@@ -78,6 +78,7 @@ Useful API endpoints:
 ```text
 GET  /healthz
 GET  /v1/status
+GET  /v1/clicks/timeline
 GET  /v1/random/int?max=100
 GET  /v1/random/bytes?length=16
 POST /v1/entropy/click

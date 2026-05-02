@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     raw_bits_per_click: int = 2
     random_wait_seconds: int = 20
     status_click_window_seconds: int = 60
+    click_timeline_window_seconds: int = 900
     random_rate_limit_per_minute: int = 120
     ingest_token: str | None = None
     influxdb_url: str | None = None
