@@ -30,6 +30,12 @@ const char *INGEST_URL = "https://random.datanode.live/v1/entropy/click";
 const char *INGEST_TOKEN = "the-server-ingest-token";
 ```
 
+On the server, the current ingest token is stored in:
+
+```text
+/home/server/nuclear_random/server/.env
+```
+
 Build and upload it with USB CDC enabled:
 
 ```bash

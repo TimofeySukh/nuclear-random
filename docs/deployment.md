@@ -42,6 +42,21 @@ Chosen integration for the home server:
 
 The current deployment target is `random.datanode.live`.
 
+Cloudflare DNS must contain:
+
+```text
+Type: CNAME
+Name: random
+Target: a58c8086-b534-454d-99d0-bf8006633e1b.cfargotunnel.com
+Proxy: enabled
+```
+
+After changing `/home/server/.cloudflared/config.yml`, restart the existing tunnel:
+
+```bash
+sudo systemctl restart cloudflared
+```
+
 ## Memory Defaults
 
 The compose file uses conservative defaults:
@@ -62,6 +77,8 @@ The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:
 ```text
 https://random.datanode.live/v1/entropy/click
 ```
+
+The firmware `INGEST_TOKEN` must match `INGEST_TOKEN` in `/home/server/nuclear_random/server/.env`.
 
 The legacy USB collector is kept as a fallback. It must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
 
