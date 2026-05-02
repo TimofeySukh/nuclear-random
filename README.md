@@ -50,8 +50,8 @@ The server stack is Docker-only and includes:
 
 ```bash
 cp server/.env.example server/.env
-docker compose --project-directory server up -d redis influxdb api
-docker compose --project-directory server --profile collector up -d collector
+docker compose -p nuclear-random --project-directory server up -d redis influxdb api
+docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
 See [docs/architecture.md](docs/architecture.md), [docs/deployment.md](docs/deployment.md), and [docs/hardware.md](docs/hardware.md).

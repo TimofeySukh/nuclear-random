@@ -6,8 +6,8 @@ The server must be managed through Docker. Do not install Redis, InfluxDB, or th
 
 ```bash
 cp server/.env.example server/.env
-docker compose --project-directory server up -d redis influxdb api
-docker compose --project-directory server --profile collector up -d collector
+docker compose -p nuclear-random --project-directory server up -d redis influxdb api
+docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
 The API listens on `127.0.0.1:19000` by default.
@@ -60,7 +60,7 @@ The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the he
 The collector must run where the ESP32-C3 appears as a serial device. If the board is plugged into the home server, run:
 
 ```bash
-docker compose --project-directory server --profile collector up -d collector
+docker compose -p nuclear-random --project-directory server --profile collector up -d collector
 ```
 
 If the board stays on a laptop or workstation, run the collector there and point it at the server Redis endpoint through a private network or SSH tunnel.
