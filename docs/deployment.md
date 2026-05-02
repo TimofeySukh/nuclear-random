@@ -101,7 +101,7 @@ This is intentionally conservative. Increasing it makes the service faster but r
 When the pool is empty, random endpoints wait for fresh entropy before returning an error:
 
 ```text
-RANDOM_WAIT_SECONDS=20
+RANDOM_WAIT_SECONDS=90
 ```
 
 The website click chart window is controlled with:

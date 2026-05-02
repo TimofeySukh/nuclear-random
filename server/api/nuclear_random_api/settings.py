@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     max_request_value: int = 2**63 - 1
     pool_low_watermark_bytes: int = 1024
     raw_bits_per_click: int = 2
-    random_wait_seconds: int = 20
+    random_wait_seconds: int = 90
     status_click_window_seconds: int = 60
     click_timeline_window_seconds: int = 900
     random_rate_limit_per_minute: int = 120
