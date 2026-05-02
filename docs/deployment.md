@@ -70,6 +70,12 @@ The compose file uses conservative defaults:
 
 The full stack is capped at `928 MiB` before Docker overhead. InfluxDB is the heaviest service, so check `docker stats` after startup.
 
+The public random endpoint is rate limited with Redis. The default is `120` requests per minute per client identity and can be changed with:
+
+```text
+RANDOM_RATE_LIMIT_PER_MINUTE=120
+```
+
 ## Collector Placement
 
 The preferred deployment is Wi-Fi firmware. The ESP32-C3 posts directly to:

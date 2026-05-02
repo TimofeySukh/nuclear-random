@@ -44,8 +44,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/example/nuclear-random"
-Documentation = "https://github.com/example/nuclear-random#readme"
+Homepage = "https://github.com/TimofeySukh/nuclear-random"
+Documentation = "https://github.com/TimofeySukh/nuclear-random#readme"
+Repository = "https://github.com/TimofeySukh/nuclear-random"
+Issues = "https://github.com/TimofeySukh/nuclear-random/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nuclear_random"]
@@ -57,4 +59,3 @@ pythonpath = ["src", "server/api", "server/collector"]
 [tool.ruff]
 line-length = 100
 target-version = "py310"
-

@@ -11,6 +11,8 @@ Nuclear Random turns Geiger counter click timing into a small public random-numb
 5. The API pops entropy bytes from Redis and serves unbiased integers with rejection sampling.
 6. The Python package calls the public API and returns an integer to the user.
 
+The API also stores lightweight service stats in Redis for `/v1/status`, including pool size, total clicks, total entropy bytes, random request counts, and estimated CPM.
+
 ## Range Algorithm
 
 For `nuclear_random(100)`, the API needs 7 bits because `100.bit_length() == 7`.
@@ -26,6 +28,12 @@ This avoids modulo bias.
 Redis stores the entropy byte pool at `nuclear_random:entropy_bytes`.
 
 The collector bounds the pool with `MAX_POOL_BYTES`, defaulting to `1 MiB`. Redis is configured with `64 MiB` max memory in Docker Compose to protect a small home server.
+
+Redis also stores:
+
+- service counters at `nuclear_random:stats`
+- recent click timestamps at `nuclear_random:click_times`
+- per-client random endpoint rate limit keys under `nuclear_random:rate:*`
 
 ## InfluxDB
 

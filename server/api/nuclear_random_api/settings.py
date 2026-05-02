@@ -4,12 +4,15 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    redis_key_prefix: str = "nuclear_random"
     redis_url: str = "redis://redis:6379/0"
     redis_entropy_key: str = "nuclear_random:entropy_bytes"
     redis_max_lpop_count: int = 256
     max_pool_bytes: int = 1_048_576
     max_request_value: int = 2**63 - 1
     pool_low_watermark_bytes: int = 1024
+    status_click_window_seconds: int = 60
+    random_rate_limit_per_minute: int = 120
     ingest_token: str | None = None
     influxdb_url: str | None = None
     influxdb_token: str | None = None

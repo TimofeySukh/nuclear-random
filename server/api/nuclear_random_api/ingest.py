@@ -9,6 +9,7 @@ import redis
 from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
 
 from .settings import settings
+from .stats import StatsStore, make_stats_store
 
 
 def timestamp_fraction_to_seed(timestamp_ns: int) -> bytes:
@@ -32,9 +33,10 @@ class IngestResult:
 
 
 class EntropyIngestor:
-    def __init__(self) -> None:
+    def __init__(self, stats_store: StatsStore | None = None) -> None:
         self._redis = redis.Redis.from_url(settings.redis_url, decode_responses=False)
         self._influx = self._make_influx_client()
+        self._stats = stats_store or make_stats_store()
 
     def ingest_click(
         self,
@@ -49,6 +51,12 @@ class EntropyIngestor:
         timestamp_ns = time.time_ns()
         entropy = whiten_click(timestamp_ns, sequence, device_time_us, dt_us)
         pool_size = self._push_entropy(entropy)
+        self._stats.record_click(
+            timestamp_ns=timestamp_ns,
+            source=source,
+            dt_us=dt_us,
+            entropy_bytes_added=len(entropy),
+        )
         self._write_click(
             timestamp_ns=timestamp_ns,
             source=source,
