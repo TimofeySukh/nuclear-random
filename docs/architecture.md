@@ -9,8 +9,9 @@ Nuclear Random turns Geiger counter decay timing into a small public random-numb
 3. The API extracts a small number of raw timing bits from `dt_us`, the time between clicks.
 4. Raw bits pass through a Von Neumann debiasing extractor: `01 -> 0`, `10 -> 1`, `00/11 -> discard`.
 5. The API packs accepted bits into bytes, pushes only full extracted bytes into Redis, and writes raw click telemetry to InfluxDB.
-6. The API pops extracted bits from Redis and serves unbiased integers with rejection sampling.
-7. The Python package calls the public API and returns an integer to the user.
+6. The API appends the same extracted bytes to a long-term on-disk archive with rotation and metadata.
+7. The API pops extracted bits from Redis and serves unbiased integers with rejection sampling.
+8. The Python package calls the public API and returns an integer to the user.
 
 The API also stores lightweight service stats in Redis for `/v1/status`, including pool size, total clicks, raw bits, extracted bits, discarded pairs, random request counts, and estimated CPM.
 
@@ -60,6 +61,15 @@ Redis also stores:
 - service counters at `nuclear_random:v2:stats`
 - recent click timestamps at `nuclear_random:v2:click_times`
 - per-client random endpoint rate limit keys under `nuclear_random:v2:rate:*`
+
+## Archive Files
+
+The API writes extracted bytes to `/var/lib/nuclear-random/archive` when `ARCHIVE_ENABLED=true`.
+
+The archive directory contains:
+
+- `manifest.json` with extractor metadata, rotation size, cumulative byte count, and shard list
+- `entropy_*.bin` shard files containing append-only extracted bytes
 
 ## InfluxDB
 

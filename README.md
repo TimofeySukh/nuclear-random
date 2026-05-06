@@ -82,6 +82,7 @@ The server stack is Docker-only and includes:
 - FastAPI API
 - static public website
 - Redis extracted entropy byte pool
+- append-only extracted-bit archive on disk
 - InfluxDB telemetry
 - Wi-Fi ingest endpoint for the ESP32-C3
 - USB serial monitor for diagnostics
@@ -111,6 +112,17 @@ POST /v1/entropy/click
 ```
 
 The public website is intended for `https://random.datanode.live`.
+
+## Archive
+
+The API also writes extracted bytes into an append-only archive on disk. This is intended for long-term accumulation before running offline statistical batteries such as `ENT`, `dieharder`, `PractRand`, or NIST-style analysis.
+
+Default archive behavior:
+
+- enabled by default
+- Docker volume mounted at `/var/lib/nuclear-random/archive`
+- manifest file at `manifest.json`
+- binary shard rotation at `128 MiB`
 
 ## Status
 

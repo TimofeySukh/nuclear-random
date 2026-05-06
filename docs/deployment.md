@@ -77,12 +77,22 @@ The compose file uses conservative defaults:
 - Redis container limit: `96 MiB`
 - Redis internal max memory: `64 MiB`
 - Entropy pool: `1 MiB`
+- Archive rotation: `128 MiB` per shard
 - InfluxDB container limit: `512 MiB`
 - API container limit: `192 MiB`
 - Site container limit: `64 MiB`
 - Collector container limit: `128 MiB`
 
 The full stack with the diagnostic collector is capped at `992 MiB` before Docker overhead. InfluxDB is the heaviest service, so check `docker stats` after startup.
+
+Long-term extracted-bit archival is enabled by default:
+
+```text
+ARCHIVE_ENABLED=true
+ARCHIVE_ROTATE_BYTES=134217728
+```
+
+Archive files are stored in the Docker volume mounted at `/var/lib/nuclear-random/archive`.
 
 The public random endpoint is rate limited with Redis. The default is `120` requests per minute per client identity and can be changed with:
 

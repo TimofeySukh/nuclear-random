@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     random_wait_seconds: int = 90
     status_click_window_seconds: int = 60
     click_timeline_window_seconds: int = 900
+    archive_enabled: bool = True
+    archive_dir: str = "/var/lib/nuclear-random/archive"
+    archive_rotate_bytes: int = 134_217_728
     random_rate_limit_per_minute: int = 120
     ingest_token: str | None = None
     influxdb_url: str | None = None

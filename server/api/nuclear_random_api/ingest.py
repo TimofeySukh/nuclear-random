@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import redis
 from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision
 
+from .archive import EntropyArchive
 from .extractor import VonNeumannExtractor, raw_bits_from_dt_us
 from .settings import settings
 from .stats import StatsStore, make_stats_store
@@ -27,6 +28,7 @@ class EntropyIngestor:
         self._influx = self._make_influx_client()
         self._stats = stats_store or make_stats_store()
         self._extractor = VonNeumannExtractor()
+        self._archive = EntropyArchive()
 
     def ingest_click(
         self,
@@ -41,6 +43,7 @@ class EntropyIngestor:
         timestamp_ns = time.time_ns()
         raw_bits = raw_bits_from_dt_us(dt_us, bit_count=settings.raw_bits_per_click)
         extracted = self._extractor.feed_raw_bits(raw_bits)
+        self._archive.append(extracted.output_bytes)
         pool_size = self._push_entropy(extracted.output_bytes)
         self._stats.record_click(
             timestamp_ns=timestamp_ns,
